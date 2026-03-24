@@ -1,59 +1,22 @@
-import { useState } from 'react';
+import { lazy, useState } from 'react';
 import './App.css';
 import FeedbackList from './components/feedbacklist';
-import { useQueryClient } from '@tanstack/react-query';
-import type { Feedback, FeedbackStatus } from './interface/feedbackInterface';
-import { voteFeedback, deleteFeedback, createFeedback } from './api/feedbackApi';
-import { useMutation } from '@tanstack/react-query';
+import type { FeedbackStatus } from './interface/feedbackInterface';
 import FilterBar from './components/filterBar';
 import FeedbackForm from './components/addFeedback';
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
+import {UseFeedbackMutation} from "./tanStackQuery/feedback/mutation/useFeedbackMutation";
+import { Toaster } from 'react-hot-toast';
+
+const Login = lazy(()=> import('./modules/auth/Login'));
 
 function App() {
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: ["feedback"] });
+  
   const [filterStatus, setFilterStatus] = useState<FeedbackStatus>("All");
   const [notification, setNotification] = useState<string | null>(null);
 
-  const createFeedbackMutation = useMutation({
-    mutationFn: (data: Feedback) => createFeedback(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["feedback"] });
-      setNotification("Feedback added Successfully");
-
-      setTimeout(() => {
-        setNotification(null);
-        navigate("/");
-      }, 1000);
-    },
-    onError: (error) => {
-      console.error("Error creating feedback:", error);
-      setNotification("Failed to add feedback. Please try again.");
-
-      setTimeout(() => {
-        setNotification(null);
-      }, 3000);
-    }
-  });
-
-  const voteMutation = useMutation({
-    mutationFn: (id: string) => voteFeedback(id),
-    onSuccess: invalidate,
-    onError: (error) => {
-      console.error("Error voteing the feedback:", error);
-      setNotification("Failed to vote the feedback. Please try again.");
-    }
-  });
-
-  const deleteFeedbackMutation = useMutation({
-    mutationFn: (id: string) => deleteFeedback(id),
-    onSuccess: invalidate,
-    onError: (error) => {
-      console.error("Error delete feedback:", error);
-      setNotification("Failed to delete the feedback. Please try again.");
-    }
+  const { createFeedbackMutation, voteMutation, deleteFeedbackMutation } = UseFeedbackMutation({
+    setNotification
   });
 
   return (
@@ -72,6 +35,7 @@ function App() {
           {notification}
         </div>
       )}
+      <Toaster position="top-right" reverseOrder={false} />
       <Routes>
         <Route path='/' element={
           <>
@@ -86,6 +50,7 @@ function App() {
         <Route path='/add-feedback' element={
           <FeedbackForm onSubmit={(data) => createFeedbackMutation.mutate(data)} />
         } />
+        <Route path='/login' element={<Login/>} />
       </Routes>
     </div>
   )

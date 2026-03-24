@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAllFeedbacks } from "../api/feedbackApi";
+import { getAllFeedbacks } from "../api/endpoints/feedback.api";
 import FeedbackCard from "./feedbackCard";
 import type { Feedback, FeedbackListInterface } from "../interface/feedbackInterface";
 import type React from "react";

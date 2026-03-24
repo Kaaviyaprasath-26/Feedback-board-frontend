@@ -20,13 +20,20 @@ export interface FeedbackCardInterface {
     deleteFeedback: (id: string) => void;
 };
 
+interface FeedbackFormValues {
+    name: string;
+    title: string;
+    description: string;
+    status: FeedbackStatus | string; // adjust if needed
+}
+
 export interface FilterBarProps {
     setFilterStatus:(value:FeedbackStatus) => void;
 }
 
 // add feedback form interface
 export interface AddFeedbackProps {
-  onSubmit: (data: any) => void;
+  onSubmit: (data: FeedbackFormValues) => void;
 }
 
 export interface OptionsInterfcae {
@@ -41,3 +48,13 @@ export interface FeedbackListInterface {
     upVotes: (id: string) => void;
     deleteFeedback: (id: string) => void;
 };
+
+// hooks -> useFeedbackMutation file interface
+export interface UseFeedbackMutationInterface {
+    setNotification: (value: string | null) => void;
+}
+
+// hooks -> useFeedbackQuery file interface
+export interface UseFeedbackQueryInterface {
+    filters: string;
+}
